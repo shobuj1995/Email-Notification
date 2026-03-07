@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SaaS Dashboard</title>
+    <!-- Import CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <h2>📋 SaaS Task Dashboard</h2>
+
+    <div class="profile-container" onclick="toggleMenu()" style="cursor:pointer">
+        👤 Profile
+        <div id="profileMenu">
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+</div>
+
+<!-- Wrapper -->
+<div class="wrapper">
+
+    <!-- Left Panel -->
+    <div class="panel left">
+        <h3>Create Task</h3>
+        <form method="POST" action="/add_task">
+            <label>Task Title</label>
+            <input name="title" required>
+
+            <label>Assign Email</label>
+            <input name="assigned_email" required>
+
+            <label>Task Time</label>
+            <input type="datetime-local" name="task_time" required>
+
+            <button class="add-btn" type="submit">Add Task</button>
+        </form>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="panel right">
+        <h3>Tasks</h3>
+        {% for task in tasks %}
+        <div class="task-card">
+            <span class="bell {% if task.task_time <= now %}pulse{% endif %}">🔔</span>
+
+            <b>{{ task.title }}</b><br>
+            📧 {{ task.assigned_email }}<br>
+            <span class="task-time">⏰ {{ task.task_time.strftime("%d %b %Y %H:%M") }}</span>
+
+            <div class="action-buttons">
+                <a href="/edit_task/{{ task.id }}"><button class="edit-btn">Edit</button></a>
+                <a href="/delete_task/{{ task.id }}"><button class="delete-btn">Delete</button></a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<!-- Import JS -->
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
+
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--<meta charset="UTF-8">-->
+<!--<title>SaaS Dashboard</title>-->
+
+<!--<style>-->
+<!--/* =====================-->
+<!--Global Theme-->
+<!--===================== */-->
+<!--body{-->
+<!--    margin:0;-->
+<!--    font-family: "Segoe UI", Arial, sans-serif;-->
+<!--    background:#f4f7fb;-->
+<!--}-->
+
+<!--/* Navbar */-->
+<!--.navbar{-->
+<!--    background:white;-->
+<!--    padding:16px 40px;-->
+<!--    display:flex;-->
+<!--    justify-content:space-between;-->
+<!--    align-items:center;-->
+<!--    box-shadow:0 2px 10px rgba(0,0,0,0.08);-->
+<!--}-->
+
+<!--/* Profile Dropdown */-->
+<!--.profile-area{-->
+<!--    position:relative;-->
+<!--    cursor:pointer;-->
+<!--}-->
+<!--.profile-menu{-->
+<!--    display:none;-->
+<!--    position:absolute;-->
+<!--    right:0;-->
+<!--    top:40px;-->
+<!--    background:white;-->
+<!--    padding:12px;-->
+<!--    border-radius:8px;-->
+<!--    box-shadow:0 5px 15px rgba(0,0,0,0.1);-->
+<!--}-->
+
+<!--/* Layout */-->
+<!--.wrapper{-->
+<!--    display:flex;-->
+<!--    gap:25px;-->
+<!--    padding:30px;-->
+<!--}-->
+
+<!--/* Panels */-->
+<!--.panel{-->
+<!--    background:white;-->
+<!--    padding:25px;-->
+<!--    border-radius:18px;-->
+<!--    box-shadow:0 6px 18px rgba(0,0,0,0.06);-->
+<!--}-->
+
+<!--/* Left Form */-->
+<!--.left{-->
+<!--    flex:0.4;-->
+<!--}-->
+
+<!--/* Right Task List */-->
+<!--.right{-->
+<!--    flex:0.6;-->
+<!--}-->
+
+<!--/* Inputs */-->
+<!--input{-->
+<!--    width:100%;-->
+<!--    padding:12px;-->
+<!--    border-radius:8px;-->
+<!--    border:1px solid #ddd;-->
+<!--    margin-top:6px;-->
+<!--    margin-bottom:15px;-->
+<!--}-->
+
+<!--/* Buttons */-->
+<!--button{-->
+<!--    padding:11px 18px;-->
+<!--    border:none;-->
+<!--    border-radius:8px;-->
+<!--    cursor:pointer;-->
+<!--    font-weight:600;-->
+<!--}-->
+<!--.add-btn{-->
+<!--    background:#4CAF50;-->
+<!--    color:white;-->
+<!--}-->
+
+<!--/* Task Cards */-->
+<!--.task-card{-->
+<!--    background:linear-gradient(135deg,#f9fbff,#eef3ff);-->
+<!--    padding:18px;-->
+<!--    border-radius:14px;-->
+<!--    margin-top:14px;-->
+<!--    transition:0.3s;-->
+<!--}-->
+<!--.task-card:hover{-->
+<!--    transform:translateY(-3px);-->
+<!--    box-shadow:0 6px 20px rgba(0,0,0,0.08);-->
+<!--}-->
+
+<!--/* Notification Bell */-->
+<!--.bell{-->
+<!--    font-size:22px;-->
+<!--    position:relative;-->
+<!--}-->
+<!--.pulse{-->
+<!--    animation:pulseAnimation 1.5s infinite;-->
+<!--}-->
+<!--@keyframes pulseAnimation{-->
+<!--    0%{ transform:scale(1); opacity:1;}-->
+<!--    50%{ transform:scale(1.3); opacity:0.5;}-->
+<!--    100%{ transform:scale(1); opacity:1;}-->
+<!--}-->
+
+<!--.task-time{-->
+<!--    color:gray;-->
+<!--    font-size:14px;-->
+<!--}-->
+
+<!--/* Action Buttons */-->
+<!--.edit-btn{-->
+<!--    background:orange;-->
+<!--    color:white;-->
+<!--}-->
+<!--.delete-btn{-->
+<!--    background:red;-->
+<!--    color:white;-->
+<!--}-->
+
+<!--</style>-->
+<!--</head>-->
+
+<!--<body>-->
+
+<!--&lt;!&ndash; Navbar &ndash;&gt;-->
+<!--<div class="navbar">-->
+<!--    <h2>📋 SaaS Task Dashboard</h2>-->
+
+<!--    <div class="profile-area" onclick="toggleMenu()">-->
+<!--        👤 Profile-->
+<!--        <div id="profileMenu" class="profile-menu">-->
+<!--            <a href="/logout" style="color:red;text-decoration:none;">-->
+<!--                Logout-->
+<!--            </a>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--&lt;!&ndash; Wrapper &ndash;&gt;-->
+<!--<div class="wrapper">-->
+
+<!--    &lt;!&ndash; Left Panel &ndash;&gt;-->
+<!--    <div class="panel left">-->
+<!--        <h3>Create Task</h3>-->
+<!--        <form method="POST" action="/add_task">-->
+<!--            <label>Task Title</label>-->
+<!--            <input name="title" required>-->
+
+<!--            <label>Assign Email</label>-->
+<!--            <input name="assigned_email" required>-->
+
+<!--            <label>Task Time</label>-->
+<!--            <input type="datetime-local" name="task_time" required>-->
+
+<!--            <button class="add-btn" type="submit">Add Task</button>-->
+<!--        </form>-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; Right Panel &ndash;&gt;-->
+<!--    <div class="panel right">-->
+<!--        <h3>Tasks</h3>-->
+
+<!--        {% for task in tasks %}-->
+<!--        <div class="task-card">-->
+
+<!--            <span class="bell {% if task.task_time <= now %}pulse{% endif %}">-->
+<!--                🔔-->
+<!--            </span>-->
+
+<!--            <b>{{ task.title }}</b>-->
+<!--            <br>-->
+<!--            📧 {{ task.assigned_email }}-->
+<!--            <br>-->
+<!--            <span class="task-time">-->
+<!--                ⏰ {{ task.task_time.strftime("%d %b %Y %H:%M") }}-->
+<!--            </span>-->
+
+<!--            <div style="margin-top:12px">-->
+<!--                <a href="/edit_task/{{ task.id }}">-->
+<!--                    <button class="edit-btn">Edit</button>-->
+<!--                </a>-->
+<!--                <a href="/delete_task/{{ task.id }}">-->
+<!--                    <button class="delete-btn">Delete</button>-->
+<!--                </a>-->
+<!--            </div>-->
+
+<!--        </div>-->
+<!--        {% endfor %}-->
+
+<!--    </div>-->
+
+<!--</div>-->
+
+<!--<script>-->
+<!--/* Toggle Profile Dropdown */-->
+<!--function toggleMenu(){-->
+<!--    let menu=document.getElementById("profileMenu");-->
+<!--    if(menu.style.display==="block"){-->
+<!--        menu.style.display="none";-->
+<!--    }else{-->
+<!--        menu.style.display="block";-->
+<!--    }-->
+<!--}-->
+
+<!--/* Close dropdown when clicking outside */-->
+<!--document.addEventListener("click", function(event){-->
+<!--    let menu = document.getElementById("profileMenu");-->
+<!--    if(menu){-->
+<!--        let profileArea = event.target.closest(".profile-area");-->
+<!--        if(!profileArea){-->
+<!--            menu.style.display = "none";-->
+<!--        }-->
+<!--    }-->
+<!--});-->
+
+<!--/* Request Notification Permission */-->
+<!--document.addEventListener("DOMContentLoaded", function(){-->
+<!--    if("Notification" in window){-->
+<!--        if(Notification.permission !== "granted"){-->
+<!--            Notification.requestPermission();-->
+<!--        }-->
+<!--    }-->
+<!--});-->
+
+<!--/* Show Browser Notification */-->
+<!--function showNotification(title){-->
+<!--    if(Notification.permission === "granted"){-->
+<!--        new Notification("Task Reminder", {-->
+<!--            body: title,-->
+<!--            icon: "https://cdn-icons-png.flaticon.com/512/1827/1827379.png"-->
+<!--        });-->
+<!--    }-->
+<!--}-->
+
+<!--/* Poll Backend Every 30 Seconds */-->
+<!--async function checkTaskNotification(){-->
+<!--    try{-->
+<!--        let response = await fetch("/tasks_due");-->
+<!--        let tasks = await response.json();-->
+<!--        tasks.forEach(task=>{-->
+<!--            showNotification(task.title);-->
+<!--        });-->
+<!--    }catch(err){-->
+<!--        console.log(err);-->
+<!--    }-->
+<!--}-->
+
+<!--/* Start Interval Checking */-->
+<!--setInterval(checkTaskNotification,30000);-->
+
+<!--</script>-->
+
+<!--</body>-->
+<!--</html>-->
