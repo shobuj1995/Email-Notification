@@ -1,124 +1,106 @@
-/* =====================
-Global Theme
-===================== */
-body {
-    margin: 0;
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: #f4f7fb;
+body{
+    background:#f4f7fb;
+    font-family:Segoe UI, sans-serif;
 }
 
-/* Navbar */
-.navbar {
-    background: white;
-    padding: 16px 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+/* Sidebar */
+
+.sidebar{
+    width:240px;
+    height:100vh;
+    background:white;
+    position:fixed;
+    padding:20px;
+    box-shadow:2px 0 12px rgba(0,0,0,0.05);
 }
 
-.profile-container {
-    position: relative;
+.sidebar a{
+    display:block;
+    padding:12px;
+    border-radius:10px;
+    text-decoration:none;
+    color:#444;
+    margin-bottom:10px;
+    transition:0.3s;
 }
 
-#profileMenu {
-    display: none;
-    position: absolute;
-    top: 36px;
-    right: 0;
-    background: white;
-    padding: 12px;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+.sidebar a:hover{
+    background:#eef3ff;
 }
 
-#profileMenu a {
-    color: red;
-    text-decoration: none;
-    font-weight: bold;
+.logout-link{
+    color:red !important;
 }
 
-/* Layout */
-.wrapper {
-    display: flex;
-    gap: 25px;
-    padding: 30px;
+/* Main Content */
+
+.main-content{
+    margin-left:260px;
+    padding:30px;
 }
 
-/* Panels */
-.panel {
-    background: white;
-    padding: 25px;
-    border-radius: 18px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+/* Statistic Card */
+
+.stat-card{
+    background:white;
+    padding:22px;
+    border-radius:16px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.05);
+    transition:0.3s;
 }
 
-.left { flex: 0.4; }
-.right { flex: 0.6; }
+.stat-card:hover{
+    transform:translateY(-4px);
+}
 
-/* Inputs */
-input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    margin-top: 6px;
-    margin-bottom: 15px;
+/* Task Card */
+
+.task-card{
+    background:linear-gradient(135deg,#f9fbff,#eef3ff);
+    padding:18px;
+    border-radius:14px;
+    margin-top:15px;
+    transition:0.3s;
+}
+
+.task-card:hover{
+    transform:translateY(-3px);
 }
 
 /* Buttons */
-button {
-    padding: 11px 18px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
+
+.add-btn{
+    background:#4CAF50;
+    color:white;
+    border:none;
+    padding:10px;
+    border-radius:8px;
 }
 
-.add-btn {
-    background: #4CAF50;
-    color: white;
+.edit-btn{
+    background:orange;
+    color:white;
+    border:none;
+    padding:6px 12px;
+    border-radius:8px;
 }
 
-/* Task Cards */
-.task-card {
-    background: linear-gradient(135deg,#f9fbff,#eef3ff);
-    padding: 18px;
-    border-radius: 14px;
-    margin-top: 14px;
-    transition: 0.3s;
+.delete-btn{
+    background:red;
+    color:white;
+    border:none;
+    padding:6px 12px;
+    border-radius:8px;
 }
 
-.task-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+/* Notification Animation */
+
+.pulse{
+    animation:pulseAnimation 1.5s infinite;
 }
 
-/* Notification Bell */
-.bell {
-    font-size: 22px;
-    position: relative;
-}
-
-.pulse {
-    animation: pulseAnimation 1.5s infinite;
-}
-
-@keyframes pulseAnimation {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.3); opacity: 0.5; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-.task-time {
-    color: gray;
-    font-size: 14px;
-}
-
-/* Action Buttons */
-.edit-btn { background: orange; color: white; }
-.delete-btn { background: red; color: white; }
-
-.action-buttons {
-    margin-top: 12px;
+@keyframes pulseAnimation{
+    0%{transform:scale(1);opacity:1;}
+    50%{transform:scale(1.3);opacity:.5;}
+    100%{transform:scale(1);opacity:1;}
 }

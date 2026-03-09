@@ -14,7 +14,9 @@ class Task(db.Model):
 
     title = db.Column(db.String(200))
 
-    assigned_email = db.Column(db.String(120))
+    description = db.Column(db.Text)
+
+    assigned_emails = db.Column(db.Text, default="[]", nullable=False)
 
     task_time = db.Column(db.DateTime)
 

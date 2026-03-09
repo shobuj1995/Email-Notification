@@ -1,16 +1,15 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, jsonify
 from flask_migrate import Migrate
 from datetime import datetime, timezone
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import jsonify
 from config import Config
 from models import db, User, Task
 from utils.email_service import send_email
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import session
-from werkzeug.security import check_password_hash
 from dotenv import load_dotenv
+import json
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -31,16 +30,13 @@ def register():
         email = request.form.get("email")
         password = request.form.get("password")
 
-        # Check if user already exists
         existing_user = User.query.filter_by(email=email).first()
 
         if existing_user:
             return "Email already registered. Please login."
 
-        # Hash password
         hashed_password = generate_password_hash(password)
 
-        # Create user
         new_user = User(
             email=email,
             password=hashed_password
@@ -75,13 +71,13 @@ def login():
             return redirect("/dashboard")
 
         else:
-            print("Invalid login")
+            return "Invalid login"
 
     return render_template("login.html")
 
 
 # ============================
-# Logout ⭐⭐⭐
+# Logout
 # ============================
 @app.route("/logout")
 def logout():
@@ -90,7 +86,7 @@ def logout():
 
 
 # ============================
-# Dashboard (Protected)
+# Dashboard
 # ============================
 @app.route("/dashboard")
 def dashboard():
@@ -110,16 +106,27 @@ def dashboard():
         now=now
     )
 
+
 # ============================
-# Add Task
+# Add Task (Multiple Emails)
 # ============================
 @app.route("/add_task", methods=["POST"])
 def add_task():
+
     if "user_id" not in session:
         return redirect("/login")
 
     title = request.form["title"]
-    assigned_email = request.form["assigned_email"]
+
+    description = request.form["description"]   # NEW LINE
+
+    emails_raw = request.form.get("assigned_emails", "")
+
+    # Convert comma separated emails → list
+    email_list = [e.strip() for e in emails_raw.split(",") if e.strip()]
+
+    import json
+    assigned_emails_json = json.dumps(email_list)
 
     task_time = datetime.strptime(
         request.form["task_time"],
@@ -128,7 +135,8 @@ def add_task():
 
     new_task = Task(
         title=title,
-        assigned_email=assigned_email,
+        description=description,   # NEW LINE
+        assigned_emails=assigned_emails_json,
         task_time=task_time,
         user_id=session["user_id"]
     )
@@ -138,8 +146,13 @@ def add_task():
 
     return redirect("/dashboard")
 
+
+# ============================
+# Tasks Due API
+# ============================
 @app.route("/tasks_due")
 def tasks_due():
+
     if "user_id" not in session:
         return jsonify([])
 
@@ -153,13 +166,15 @@ def tasks_due():
 
     result = [{"title": task.title} for task in tasks]
 
-    # Don't send email here, just return JSON
     return jsonify(result)
+
+
 # ============================
 # Delete Task
 # ============================
 @app.route("/delete_task/<int:task_id>")
 def delete_task(task_id):
+
     if "user_id" not in session:
         return redirect("/login")
 
@@ -177,6 +192,7 @@ def delete_task(task_id):
 # ============================
 @app.route("/edit_task/<int:task_id>", methods=["GET", "POST"])
 def edit_task(task_id):
+
     if "user_id" not in session:
         return redirect("/login")
 
@@ -186,8 +202,14 @@ def edit_task(task_id):
         return redirect("/dashboard")
 
     if request.method == "POST":
+
         task.title = request.form["title"]
-        task.assigned_email = request.form["assigned_email"]
+        task.description = request.form.get("description", "")
+
+        emails_raw = request.form.get("assigned_emails", "")
+        email_list = [e.strip() for e in emails_raw.split(",") if e.strip()]
+
+        task.assigned_emails = json.dumps(email_list)
 
         task.task_time = datetime.strptime(
             request.form["task_time"],
@@ -198,23 +220,19 @@ def edit_task(task_id):
 
         return redirect("/dashboard")
 
-    return render_template("edit_task.html", task=task)
+    email_list = json.loads(task.assigned_emails)
+    emails_string = ", ".join(email_list)
 
-# To test the Email Service manualy
-# @app.route("/test_mail")
-# def test_mail():
-#
-#     send_email(
-#         "obaydul051@gmail.com",
-#         "Manual Test",
-#         "Hello Test"
-#     )
-#
-#     return "Test Email Sent"
-# # Notification Scheduler
+    return render_template("edit_task.html", task=task, emails_string=emails_string)
+
+
+# ============================
+# Notification Scheduler
 # ============================
 def check_and_send_notifications():
+
     with app.app_context():
+
         now = datetime.now(timezone.utc)
 
         tasks = Task.query.filter(
@@ -223,24 +241,26 @@ def check_and_send_notifications():
         ).all()
 
         for task in tasks:
+
             try:
-                # Simple fixed body with only due time
                 due_time_str = task.task_time.strftime("%Y-%m-%d %H:%M UTC")
 
                 message = (
-                    f"This is a reminder that your task is now due.\n\n"
+                    "This is a reminder that your task is now due.\n\n"
                     f"Task: {task.title}\n"
                     f"Due time: {due_time_str}\n\n"
-                    f"Please complete it soon."
+                    "Please complete it soon."
                 )
 
+                # Parse JSON email list
+                emails = json.loads(task.assigned_emails or "[]")
+
                 send_email(
-                    task.assigned_email,
+                    emails,
                     "Task Due Reminder",
                     message
                 )
 
-                # Still marking as completed (you can remove this line if you don't want it)
                 task.completed = True
 
             except Exception as e:
@@ -249,10 +269,13 @@ def check_and_send_notifications():
         db.session.commit()
 
 
-# Scheduler setup (unchanged)
+# ============================
+# Scheduler Setup
+# ============================
 scheduler = BackgroundScheduler()
 scheduler.add_job(check_and_send_notifications, 'interval', seconds=10)
 scheduler.start()
+
 
 # ============================
 # Run App

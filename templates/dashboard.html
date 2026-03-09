@@ -2,334 +2,156 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SaaS Dashboard</title>
-    <!-- Import CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <title>Task Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
 </head>
+
 <body>
 
-<!-- Navbar -->
-<div class="navbar">
-    <h2>📋 SaaS Task Dashboard</h2>
+<!-- Sidebar -->
+<div class="sidebar">
+    <h4>📋 Task SaaS</h4>
 
-    <div class="profile-container" onclick="toggleMenu()" style="cursor:pointer">
-        👤 Profile
-        <div id="profileMenu">
-            <a href="/logout">Logout</a>
-        </div>
-    </div>
+    <a href="#">🏠 Dashboard</a>
+
+    <a href="#" data-bs-toggle="modal"
+       data-bs-target="#taskModal">
+        ➕ Create Task
+    </a>
+
+    <a href="/logout" class="logout-link">🚪 Logout</a>
 </div>
 
-<!-- Wrapper -->
-<div class="wrapper">
 
-    <!-- Left Panel -->
-    <div class="panel left">
-        <h3>Create Task</h3>
-        <form method="POST" action="/add_task">
-            <label>Task Title</label>
-            <input name="title" required>
+<!-- Main Content -->
+<div class="main-content">
 
-            <label>Assign Email</label>
-            <input name="assigned_email" required>
-
-            <label>Task Time</label>
-            <input type="datetime-local" name="task_time" required>
-
-            <button class="add-btn" type="submit">Add Task</button>
-        </form>
+    <div class="d-flex justify-content-between mb-4">
+        <h3>Dashboard</h3>
     </div>
 
-    <!-- Right Panel -->
-    <div class="panel right">
-        <h3>Tasks</h3>
-        {% for task in tasks %}
-        <div class="task-card">
-            <span class="bell {% if task.task_time <= now %}pulse{% endif %}">🔔</span>
 
-            <b>{{ task.title }}</b><br>
-            📧 {{ task.assigned_email }}<br>
-            <span class="task-time">⏰ {{ task.task_time.strftime("%d %b %Y %H:%M") }}</span>
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
 
-            <div class="action-buttons">
-                <a href="/edit_task/{{ task.id }}"><button class="edit-btn">Edit</button></a>
-                <a href="/delete_task/{{ task.id }}"><button class="delete-btn">Delete</button></a>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <h5>Total Tasks</h5>
+                <h2>{{ total_tasks }}</h2>
             </div>
         </div>
+
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <h5>Completed</h5>
+                <h2>{{ completed_tasks }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <h5>Pending</h5>
+                <h2>{{ pending_tasks }}</h2>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Task List -->
+    <div class="card p-4 shadow-sm">
+
+        <h5>Task List</h5>
+
+        {% for task in tasks %}
+
+        <div class="task-card">
+
+            <span class="bell {% if task.task_time <= now %}pulse{% endif %}">
+                🔔
+            </span>
+
+            <b>{{ task.title }}</b>
+            <br>
+            <b>Assigned Email:</b>
+            {% for email in task.assigned_emails.split(",") %}
+            {{ email }}
+            {% endfor %}
+
+            <br>
+
+            ⏰ {{ task.task_time.strftime("%d %b %Y %H:%M") }}
+
+            <div class="mt-2">
+                <a href="/edit_task/{{ task.id }}">
+                    <button class="edit-btn">Edit</button>
+                </a>
+
+                <a href="/delete_task/{{ task.id }}">
+                    <button class="delete-btn">Delete</button>
+                </a>
+            </div>
+
+        </div>
+
         {% endfor %}
+
     </div>
 
 </div>
 
-<!-- Import JS -->
+
+<!-- Task Modal -->
+<div class="modal fade" id="taskModal">
+    <div class="modal-dialog">
+        <div class="modal-content p-4">
+
+            <h5>Create Task</h5>
+
+            <form method="POST" action="/add_task">
+
+                <input class="form-control mb-3"
+                       name="title"
+                       placeholder="Task Title"
+                       required>
+
+                <!-- NEW DESCRIPTION FIELD -->
+                <textarea class="form-control mb-3"
+                          name="description"
+                          placeholder="Task Description"
+                          rows="3"
+                          required></textarea>
+
+                <label class="form-label">Assign Emails (Use comma separator)</label>
+
+                <input class="form-control mb-3"
+                       name="assigned_emails"
+                       placeholder="Insert email addresses"
+                       required>
+
+                <input class="form-control mb-3"
+                       type="datetime-local"
+                       name="task_time"
+                       required>
+
+                <button class="add-btn w-100">Add Task</button>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
 </body>
 </html>
-
-<!--<!DOCTYPE html>-->
-<!--<html lang="en">-->
-<!--<head>-->
-<!--<meta charset="UTF-8">-->
-<!--<title>SaaS Dashboard</title>-->
-
-<!--<style>-->
-<!--/* =====================-->
-<!--Global Theme-->
-<!--===================== */-->
-<!--body{-->
-<!--    margin:0;-->
-<!--    font-family: "Segoe UI", Arial, sans-serif;-->
-<!--    background:#f4f7fb;-->
-<!--}-->
-
-<!--/* Navbar */-->
-<!--.navbar{-->
-<!--    background:white;-->
-<!--    padding:16px 40px;-->
-<!--    display:flex;-->
-<!--    justify-content:space-between;-->
-<!--    align-items:center;-->
-<!--    box-shadow:0 2px 10px rgba(0,0,0,0.08);-->
-<!--}-->
-
-<!--/* Profile Dropdown */-->
-<!--.profile-area{-->
-<!--    position:relative;-->
-<!--    cursor:pointer;-->
-<!--}-->
-<!--.profile-menu{-->
-<!--    display:none;-->
-<!--    position:absolute;-->
-<!--    right:0;-->
-<!--    top:40px;-->
-<!--    background:white;-->
-<!--    padding:12px;-->
-<!--    border-radius:8px;-->
-<!--    box-shadow:0 5px 15px rgba(0,0,0,0.1);-->
-<!--}-->
-
-<!--/* Layout */-->
-<!--.wrapper{-->
-<!--    display:flex;-->
-<!--    gap:25px;-->
-<!--    padding:30px;-->
-<!--}-->
-
-<!--/* Panels */-->
-<!--.panel{-->
-<!--    background:white;-->
-<!--    padding:25px;-->
-<!--    border-radius:18px;-->
-<!--    box-shadow:0 6px 18px rgba(0,0,0,0.06);-->
-<!--}-->
-
-<!--/* Left Form */-->
-<!--.left{-->
-<!--    flex:0.4;-->
-<!--}-->
-
-<!--/* Right Task List */-->
-<!--.right{-->
-<!--    flex:0.6;-->
-<!--}-->
-
-<!--/* Inputs */-->
-<!--input{-->
-<!--    width:100%;-->
-<!--    padding:12px;-->
-<!--    border-radius:8px;-->
-<!--    border:1px solid #ddd;-->
-<!--    margin-top:6px;-->
-<!--    margin-bottom:15px;-->
-<!--}-->
-
-<!--/* Buttons */-->
-<!--button{-->
-<!--    padding:11px 18px;-->
-<!--    border:none;-->
-<!--    border-radius:8px;-->
-<!--    cursor:pointer;-->
-<!--    font-weight:600;-->
-<!--}-->
-<!--.add-btn{-->
-<!--    background:#4CAF50;-->
-<!--    color:white;-->
-<!--}-->
-
-<!--/* Task Cards */-->
-<!--.task-card{-->
-<!--    background:linear-gradient(135deg,#f9fbff,#eef3ff);-->
-<!--    padding:18px;-->
-<!--    border-radius:14px;-->
-<!--    margin-top:14px;-->
-<!--    transition:0.3s;-->
-<!--}-->
-<!--.task-card:hover{-->
-<!--    transform:translateY(-3px);-->
-<!--    box-shadow:0 6px 20px rgba(0,0,0,0.08);-->
-<!--}-->
-
-<!--/* Notification Bell */-->
-<!--.bell{-->
-<!--    font-size:22px;-->
-<!--    position:relative;-->
-<!--}-->
-<!--.pulse{-->
-<!--    animation:pulseAnimation 1.5s infinite;-->
-<!--}-->
-<!--@keyframes pulseAnimation{-->
-<!--    0%{ transform:scale(1); opacity:1;}-->
-<!--    50%{ transform:scale(1.3); opacity:0.5;}-->
-<!--    100%{ transform:scale(1); opacity:1;}-->
-<!--}-->
-
-<!--.task-time{-->
-<!--    color:gray;-->
-<!--    font-size:14px;-->
-<!--}-->
-
-<!--/* Action Buttons */-->
-<!--.edit-btn{-->
-<!--    background:orange;-->
-<!--    color:white;-->
-<!--}-->
-<!--.delete-btn{-->
-<!--    background:red;-->
-<!--    color:white;-->
-<!--}-->
-
-<!--</style>-->
-<!--</head>-->
-
-<!--<body>-->
-
-<!--&lt;!&ndash; Navbar &ndash;&gt;-->
-<!--<div class="navbar">-->
-<!--    <h2>📋 SaaS Task Dashboard</h2>-->
-
-<!--    <div class="profile-area" onclick="toggleMenu()">-->
-<!--        👤 Profile-->
-<!--        <div id="profileMenu" class="profile-menu">-->
-<!--            <a href="/logout" style="color:red;text-decoration:none;">-->
-<!--                Logout-->
-<!--            </a>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</div>-->
-
-<!--&lt;!&ndash; Wrapper &ndash;&gt;-->
-<!--<div class="wrapper">-->
-
-<!--    &lt;!&ndash; Left Panel &ndash;&gt;-->
-<!--    <div class="panel left">-->
-<!--        <h3>Create Task</h3>-->
-<!--        <form method="POST" action="/add_task">-->
-<!--            <label>Task Title</label>-->
-<!--            <input name="title" required>-->
-
-<!--            <label>Assign Email</label>-->
-<!--            <input name="assigned_email" required>-->
-
-<!--            <label>Task Time</label>-->
-<!--            <input type="datetime-local" name="task_time" required>-->
-
-<!--            <button class="add-btn" type="submit">Add Task</button>-->
-<!--        </form>-->
-<!--    </div>-->
-
-<!--    &lt;!&ndash; Right Panel &ndash;&gt;-->
-<!--    <div class="panel right">-->
-<!--        <h3>Tasks</h3>-->
-
-<!--        {% for task in tasks %}-->
-<!--        <div class="task-card">-->
-
-<!--            <span class="bell {% if task.task_time <= now %}pulse{% endif %}">-->
-<!--                🔔-->
-<!--            </span>-->
-
-<!--            <b>{{ task.title }}</b>-->
-<!--            <br>-->
-<!--            📧 {{ task.assigned_email }}-->
-<!--            <br>-->
-<!--            <span class="task-time">-->
-<!--                ⏰ {{ task.task_time.strftime("%d %b %Y %H:%M") }}-->
-<!--            </span>-->
-
-<!--            <div style="margin-top:12px">-->
-<!--                <a href="/edit_task/{{ task.id }}">-->
-<!--                    <button class="edit-btn">Edit</button>-->
-<!--                </a>-->
-<!--                <a href="/delete_task/{{ task.id }}">-->
-<!--                    <button class="delete-btn">Delete</button>-->
-<!--                </a>-->
-<!--            </div>-->
-
-<!--        </div>-->
-<!--        {% endfor %}-->
-
-<!--    </div>-->
-
-<!--</div>-->
-
-<!--<script>-->
-<!--/* Toggle Profile Dropdown */-->
-<!--function toggleMenu(){-->
-<!--    let menu=document.getElementById("profileMenu");-->
-<!--    if(menu.style.display==="block"){-->
-<!--        menu.style.display="none";-->
-<!--    }else{-->
-<!--        menu.style.display="block";-->
-<!--    }-->
-<!--}-->
-
-<!--/* Close dropdown when clicking outside */-->
-<!--document.addEventListener("click", function(event){-->
-<!--    let menu = document.getElementById("profileMenu");-->
-<!--    if(menu){-->
-<!--        let profileArea = event.target.closest(".profile-area");-->
-<!--        if(!profileArea){-->
-<!--            menu.style.display = "none";-->
-<!--        }-->
-<!--    }-->
-<!--});-->
-
-<!--/* Request Notification Permission */-->
-<!--document.addEventListener("DOMContentLoaded", function(){-->
-<!--    if("Notification" in window){-->
-<!--        if(Notification.permission !== "granted"){-->
-<!--            Notification.requestPermission();-->
-<!--        }-->
-<!--    }-->
-<!--});-->
-
-<!--/* Show Browser Notification */-->
-<!--function showNotification(title){-->
-<!--    if(Notification.permission === "granted"){-->
-<!--        new Notification("Task Reminder", {-->
-<!--            body: title,-->
-<!--            icon: "https://cdn-icons-png.flaticon.com/512/1827/1827379.png"-->
-<!--        });-->
-<!--    }-->
-<!--}-->
-
-<!--/* Poll Backend Every 30 Seconds */-->
-<!--async function checkTaskNotification(){-->
-<!--    try{-->
-<!--        let response = await fetch("/tasks_due");-->
-<!--        let tasks = await response.json();-->
-<!--        tasks.forEach(task=>{-->
-<!--            showNotification(task.title);-->
-<!--        });-->
-<!--    }catch(err){-->
-<!--        console.log(err);-->
-<!--    }-->
-<!--}-->
-
-<!--/* Start Interval Checking */-->
-<!--setInterval(checkTaskNotification,30000);-->
-
-<!--</script>-->
-
-<!--</body>-->
-<!--</html>-->
